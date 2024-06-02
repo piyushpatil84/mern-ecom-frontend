@@ -1,4 +1,4 @@
-import { Counter } from './features/counter/Counter';
+//2:05:00 hrs
 import './App.css';
 import Home from './pages/Home';
 import LoginPage from './pages/LoginPage';
@@ -10,6 +10,9 @@ import {
   Route,
   Link,
 } from 'react-router-dom';
+import Cart from './features/cart/Cart';
+import Checkout from './pages/Checkout';
+import ProductDetailPage from './pages/ProductDetailPage';
 
 const router = createBrowserRouter([
   {
@@ -24,6 +27,18 @@ const router = createBrowserRouter([
     path: '/signup',
     element: <SignupPage></SignupPage>,
   },
+  {
+    path: '/cart',
+    element: <Cart></Cart>,
+  },
+  {
+    path: '/checkout',
+    element: <Checkout></Checkout>,
+  },
+  { 
+    path: '/product-detail',
+    element: <ProductDetailPage></ProductDetailPage>,
+  },
 ]);
 
 function App() {
@@ -35,3 +50,4 @@ function App() {
 }
 
 export default App;
+
