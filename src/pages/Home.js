@@ -3,11 +3,11 @@ import ProductList from "../features/product/components/ProductList";
 
 function Home() {
     return (
-        <div>
+        <>
             <NavBar>
-                <ProductList></ProductList>
+                <ProductList />
             </NavBar>
-        </div>
+        </>
     );
 }
 

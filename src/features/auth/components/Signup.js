@@ -1,20 +1,50 @@
+import { useFormik } from 'formik';
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import {
-  increment,
-  incrementAsync,
-  selectCount,
-} from '../authSlice';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import * as Yup from 'yup';
+import InputField from '../../../component/input';
+import { createUserAsync } from '../authSlice';
+import { unwrapResult } from '@reduxjs/toolkit';
+import { toast } from 'react-toastify';
+
 
 export default function Signup() {
-  const count = useSelector(selectCount);
   const dispatch = useDispatch();
+  const navigate = useNavigate()
 
+  const formik = useFormik({
+    initialValues: {
+      email: '',
+      password: '',
+      confirmPassword: '',
+    },
+    validationSchema: Yup.object({
+      email: Yup.string().email('Invalid email address').required('Email is Required'),
+      password: Yup.string().required('Password is Required'),
+      confirmPassword: Yup.string()
+        .oneOf([Yup.ref('password'), null], 'Passwords must match')
+        .required('Confirm Password is Required'),
+    }),
+    onSubmit: async (values, { resetForm }) => {
+      const finalVal = {
+        ...values,
+        addresses:[]
+      } 
+      try {
+        const resultAction = await dispatch(createUserAsync(finalVal));
+        const user = unwrapResult(resultAction);
+        toast.success(`User ${user.email} created successfully!`);
+        resetForm();
+        navigate('/');
+      } catch (err) {
+        toast.error('Failed to create user');
+      }
+    },
+  });
 
   return (
     <>
-  
       <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
           <img
@@ -28,64 +58,40 @@ export default function Signup() {
         </div>
 
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-          <form className="space-y-6" action="#" method="POST">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">
-                Email address
-              </label>
-              <div className="mt-2">
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                />
-              </div>
-            </div>
-
-            <div>
-              <div className="flex items-center justify-between">
-                <label htmlFor="password" className="block text-sm font-medium leading-6 text-gray-900">
-                  Password
-                </label>
-                <div className="text-sm">
-                  <a href="#" className="font-semibold text-indigo-600 hover:text-indigo-500">
-                    Forgot password?
-                  </a>
-                </div>
-              </div>
-              <div className="mt-2">
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="current-password"
-                  required
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                />
-              </div>
-            </div>
-
-            <div>
-              <div className="flex items-center justify-between">
-                <label htmlFor="password" className="block text-sm font-medium leading-6 text-gray-900">
-                  Confirm Password
-                </label>
-              
-              </div>
-              <div className="mt-2">
-                <input
-                  id="confirm-password"
-                  name="confirm-password"
-                  type="password"
-                  required
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                />
-              </div>
-            </div>
-
+          <form noValidate className="space-y-6" onSubmit={formik.handleSubmit}>
+            <InputField
+              label="Email address"
+              id="email"
+              name="email"
+              type="email"
+              value={formik.values.email}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.email && formik.errors.email}
+              required={true}
+            />
+            <InputField
+              label="Password"
+              id="password"
+              name="password"
+              type="password"
+              value={formik.values.password}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.password && formik.errors.password}
+              required={true}
+            />
+            <InputField
+              label="Confirm Password"
+              id="confirmPassword"
+              name="confirmPassword"
+              type="password"
+              value={formik.values.confirmPassword}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.confirmPassword && formik.errors.confirmPassword}
+              required={true}
+            />
             <div>
               <button
                 type="submit"
